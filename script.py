@@ -23,7 +23,7 @@ def menu():
 
 def installation():
 	os.system('ls')
-	print ("ok")
+	print ("ok sa marche")
 	return
 
 def client():
