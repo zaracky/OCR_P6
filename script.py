@@ -42,12 +42,12 @@ def client():
 	print(" \n Etes vous sur?(y/n)")
 	choice = input(" >>")
 #Si le choix est yes on commence la création de la clé ovpn
-	if choice=="y" or "Y":
+	if choice=="y":
 		print("nom:",nom,ip,port,protocol)
 
 
 #Si le choix est no  l'utilisateur est invité a entrer à nouveau les informations		
-	elif choice=="n" or "N":
+	elif choice=="n":
 		print("Renseignez à nouveau les informations du client")
 		client()
 #Sinon on fait à nouveau appel a la fonction client
@@ -57,13 +57,14 @@ def client():
 	print("Envoyer le fichier par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
 #Si oui on fait appel à la fonction mail correspondant à l'OS Client
-	if reponse=="y" or "Y" :
+	if reponse=="y" :
 		print("nom:",nom)
 
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
-	else :
+	elif reponse=="n":
 		print("Le fichier est disponible à l'emplacement suivant:")
-
+	else:
+		return
 	return
 #Fin de la fonction client
 
