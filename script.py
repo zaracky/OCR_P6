@@ -1,5 +1,8 @@
 import sys, os
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 #Fonction Menu
 def menu():
@@ -58,13 +61,13 @@ def client():
 	reponse = input(" >>")
 #Si oui on fait appel à la fonction mail correspondant à l'OS Client
 	if reponse=="y" :
-		print("nom:",nom)
+		envoimail()
 
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
 	elif reponse=="n":
 		print("Le fichier est disponible à l'emplacement suivant:")
 	else:
-		return
+		print("Le fichier est disponible à l'emplacement suivant:")
 	return
 #Fin de la fonction client
 
@@ -75,24 +78,34 @@ def installation():
 	return
 
 
-def mail_linux():
-	fromaddr = 'lasassin974@gmail.com'
-	toaddrs  = 'lasassin974@gmail.com'
-	sujet = "Un mail de test"
-	msg = "Un test de mail"
+def envoimail():
+	print("Quel est le mail utilisateur?")
+	mail= input(" >>")
+	print("Etes vous sur qu'il s'agit de cette adresse:",mail," ? (y/n)")
+	choice = input(" >>")
+	if choice=="y":
+		msg = MIMEMultipart()
+		msg['From'] = 'loic.esparon.ocr@gmail.com'
+		msg['To'] = mail
+		msg['Subject'] = 'Procédure installation OPENVPN Client Linux' 
+		message = u"""\
+		Bonjour voici la prrocédure
+		SUffit d'installer le bidule dans le machin
+		Et ensuite magie sisi"""
+		msg.attach(MIMEText(message))
+		mailserver = smtplib.SMTP('smtp.gmail.com', 587)
+		mailserver.ehlo()
+		mailserver.starttls()
+		mailserver.ehlo()
+		mailserver.login('loic.esparon.ocr@gmail.com', 'loicus7!')
+		mailserver.sendmail('loic.esparon.ocr@gmail.com', mail, msg.as_string())
+		mailserver.quit()
+	elif choice=="n":
+		print("Renseignez à nouveau les informations du client")
+		envoimail()
 
-# Gmail Login
- 
-	username = 'username' # A modifier
-	password = 'password' # A modifier
- 
-# Sending the mail  
- 
-	server = smtplib.SMTP('smtp.gmail.com:587')
-	server.starttls()
-	server.login(username,password)
-	server.sendmail(fromaddr, toaddrs, msg)
-	server.quit()
-	return  
+	else :
+		envoimail()
+	return
 
 menu()
