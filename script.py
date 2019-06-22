@@ -1,7 +1,12 @@
 import sys, os
 import smtplib
+import subprocess #Pour le stockage dans des variables des commandes systemes
+
+#Pour l'envoie des mail avec corps de texte+pj
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 
 #Fonction Menu
@@ -44,6 +49,7 @@ def client():
 	print(" \n Le protocol utilisé est UDP ou TCP:")
 	protocol = input(" >>")
 #On affiche le résumé des données entrées afin que l'utilisateur valide en toute conscience
+	print("--------------------------------------------------------------")
 	print("\nLes informations sont les suivantes:\nnom:",nom, "\nIP:",ip,"\nPort:",port,"\nProtocol:",protocol)
 	print(" \n Etes vous sur?(y/n)")
 	choice = input(" >>")
@@ -54,7 +60,7 @@ def client():
 
 #Si le choix est no  l'utilisateur est invité a entrer à nouveau les informations		
 	elif choice=="n":
-		print("Renseignez à nouveau les informations du client")
+		os.system('clear')
 		client()
 #Sinon on fait à nouveau appel a la fonction client
 	else:
@@ -69,6 +75,7 @@ def client():
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
 	elif reponse=="n":
 		print("Le fichier est disponible à l'emplacement suivant:")
+		return
 	else:
 		print("Le fichier est disponible à l'emplacement suivant:")
 	return
@@ -84,6 +91,8 @@ def installation():
 
 #Fonction permettant l'envoi des mail
 def envoimail():
+#on stock dans une variable le mdp du compte mail
+	mdp = subprocess.check_output(['cat', '/home/administrateur/mdp.txt'])
 #On demande le mail de l'utilisateur
 	print("Quel est le mail utilisateur?")
 #On l'integre ensuite à une variable
@@ -104,6 +113,7 @@ def envoimail():
 	if systemexploit=="linux":
 #Si il s'agit d'un client linux on lui envoie la procédure approprié
 		msg = MIMEMultipart()
+#On definit ici le corps du mail
 		msg['From'] = 'loic.esparon.ocr@gmail.com'
 		msg['To'] = mail
 		msg['Subject'] = 'Procédure installation OPENVPN Client Linux' 
@@ -122,11 +132,22 @@ def envoimail():
 		Cordialement,
 		L'équipe informatique"""
 		msg.attach(MIMEText(message))
+# Ces lignes permettent de definir la piece jointe:
+#Son nom dans le mail
+		filename = "test.txt"
+#Son emplacement
+		attachment = open("/home/administrateur/mdp.txt", "rb")
+		part = MIMEBase('application', 'octet-stream')
+		part.set_payload(attachment.read())
+		encoders.encode_base64(part)
+		part.add_header('Content-Disposition', "attachment", filename=filename)
+		msg.attach(part)
 		mailserver = smtplib.SMTP('smtp.gmail.com', 587)
 		mailserver.ehlo()
 		mailserver.starttls()
 		mailserver.ehlo()
-		mailserver.login('loic.esparon.ocr@gmail.com', 'loicus7!')
+#On indique les identifiants de connexion
+		mailserver.login('loic.esparon.ocr@gmail.com', mdp.decode())
 		mailserver.sendmail('loic.esparon.ocr@gmail.com', mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
@@ -158,11 +179,22 @@ def envoimail():
 		Cordialement,
 		L'équipe informatique"""
 		msg.attach(MIMEText(message))
+# Ces lignes permettent de definir la piece jointe:
+#Son nom dans le mail
+		filename = "test.txt"
+#Son emplacement
+		attachment = open("/home/administrateur/mdp.txt", "rb")
+		part = MIMEBase('application', 'octet-stream')
+		part.set_payload(attachment.read())
+		encoders.encode_base64(part)
+		part.add_header('Content-Disposition', "attachment", filename=filename)
+		msg.attach(part)
 		mailserver = smtplib.SMTP('smtp.gmail.com', 587)
 		mailserver.ehlo()
 		mailserver.starttls()
 		mailserver.ehlo()
-		mailserver.login('loic.esparon.ocr@gmail.com', 'loicus7!')
+#On indique les identifiants de connexion
+		mailserver.login('loic.esparon.ocr@gmail.com', mdp.decode())
 		mailserver.sendmail('loic.esparon.ocr@gmail.com', mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
