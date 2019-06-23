@@ -1,6 +1,8 @@
-import sys, os
+#On commence par importer les librairies necessaires au fonctionnement
+import sys, os, os.path
 import smtplib
-import subprocess #Pour le stockage dans des variables des commandes systemes
+import subprocess 
+from os import chdir, mkdir
 
 #Pour l'envoie des mail avec corps de texte+pj
 from email.mime.multipart import MIMEMultipart
@@ -15,14 +17,14 @@ def menu():
 #On affiche ici les options possible à l'éxecution du programme
 	print("--------------------------------------------------------------------")
 	print("Bienvenue à travers mon script d'automatisation des clients OPENVPN \n ")
-	print("\033[31m/_\ Attention ce dernier est à exécuter sur une machine GNU/Linux \n\033[0m") 
+	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN \n\033[0m") 
 	print("Voici les differentes options:")
 	print(" 1.Créer un fichier de configuration pour un client \n 2 Créer le fichier client sur la machine local \n 3.Quitter")
 	print("-------------------------------------------------------------------")
 	print(" \n Votre choix:")
 	choice = input(" >>")
 
-#Une fonction à exécuter en fonction de chaque choix
+#On definit une fonction à exécuter en fonction de chaque choix
 	if choice=="1":
 		client()
 	elif choice=="2":
@@ -38,34 +40,70 @@ def menu():
 
 #FOnction permettant la création de la clé client
 def client():
+	os.system('clear')
+#la variable localisation sera utilisé également dans la fonction envoimail
+	global localisation
 #Des informations sont necessaires afin de personnaliser les clés
 	print("Merci de completer les informations suivantes afin de démarrer le script ")
+#Il nous dans un premier temps l'accès vers le repertoire contenant les scripts et le certificat serveur:
+	print(" \nOu se trouve le repertoire easy-rsa contenant les script de création?")
+	print("\033[31m/_\ Attention le repertoire doit avoir la syntaxte suivante: build-key présent et ca.crt +ca.key présent dans un repertoire 'keys'\n (cf README) \n\033[0m") 
+	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
+#On procéde la verification de la présence des fichiers necessaires a la création de la clé client 
+	if os.path.isfile(localisation+'/keys/ca.crt'):
+		print("Le fichier ca.crt est présent")
+	else:
+		print("\033[31m \n /_\ Erreur le fichier ca.crt n'est pas présent à l'emplacement suivant:",localisation,"\n\033[0m")
+		print("Merci d'indiquer à nouveau le chemin d'accès")
+		input (" ")
+		client()
+	if os.path.isfile(localisation+'/keys/ca.key'):
+		print("Le fichier ca.key est présent")
+	else:
+		print("\033[31m \n /_\ Erreur le fichier ca.key n'est pas présent à l'emplacement suivant:",localisation,"\n\033[0m")
+		print("Merci d'indiquer à nouveau le chemin d'accès")
+		input (" ")
+		client()
+	if os.path.isfile(localisation+'/build-key'):
+		print("Le fichier build-key est présent")
+	else:
+		print("\033[31m \n /_\ Erreur le fichier build-key n'est pas présent à l'emplacement suivant:",localisation,"\n\033[0m")
+		print("Merci d'indiquer à nouveau le chemin d'accès")
+		input (" ")
+		client()
+	print("Tout les fichiers sont présent. Début de la création des fichiers utilisateurs..")
+	
+#Maintenant cette étape réaliser, nous pouvons personaliser l'accès via les informations ci dessous:
 	print(" \n Entrer le nom du client:")
-	nom = input(" >>")
+	nom = input(" Nom:")
 	print(" \n Entrer l'IP du serveur:")
-	ip = input(" >>")	
+	ip = input(" IP du serveur:")	
 	print(" \n Quel est le port utiliser sur le serveur VPN:")
-	port = input(" >>")
+	port = input(" Port utilisé:")
 	print(" \n Le protocol utilisé est UDP ou TCP:")
-	protocol = input(" >>")
+	protocol = input(" Protocol utilisé:")
+
+#Si l'environement est frequement utilisé on peut definir les variable manuellement et décommenter les lignes suivantes:
+	#localisation="/home/administrateur/easy-rsa"
+	#ip="192.168.1.1"
+	#port="1194"
+	#protocol="udp"
+
 #On affiche le résumé des données entrées afin que l'utilisateur valide en toute conscience
 	print("--------------------------------------------------------------")
 	print("\nLes informations sont les suivantes:\nnom:",nom, "\nIP:",ip,"\nPort:",port,"\nProtocol:",protocol)
 	print(" \n Etes vous sur?(y/n)")
 	choice = input(" >>")
-#Si le choix est yes on commence la création de la clé ovpn
+#Si le choix est yes on commence la création de la clé vpn
 	if choice=="y":
 		print("nom:",nom,ip,port,protocol)
+		os.chdir(localisation)
 
-
-#Si le choix est no  l'utilisateur est invité a entrer à nouveau les informations		
-	elif choice=="n":
-		os.system('clear')
-		client()
-#Sinon on fait à nouveau appel a la fonction client
+#Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
 		client()
-#Maintenant que le fichier est créer on propose à l'utilisateur de l'envoyer par mail à l'utilisateur
+
+#Maintenant que le fichier est créer on propose de l'envoyer par mail à l'utilisateur
 	print("Envoyer le fichier par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
 #Si oui on fait appel à la fonction mail 
@@ -73,11 +111,15 @@ def client():
 		envoimail()
 
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
-	elif reponse=="n":
-		print("Le fichier est disponible à l'emplacement suivant:")
-		return
 	else:
-		print("Le fichier est disponible à l'emplacement suivant:")
+		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
+	print("\nVoulez-vous configurer d'autre client?(y/n)")
+	choix = input(" >>")
+	if choix=="y" :
+		client()
+	else:
+		print("A bientôt")
+		return
 	return
 #Fin de la fonction client
 
@@ -124,7 +166,7 @@ def envoimail():
 		Installation en ligne de commande:
 		On commence par installer openvpn avec la commande: apt-get install openvpn
 		Il faudra ensuite copier le fichier .ovpn présent en pj à l'emplacement suivant: /etc/openvpn
-		Enfin afin de démarrer la connexion, on exectuera la commande: openvpn /etc/openvpn/(votreprenom)ovpn
+		Enfin afin de démarrer la connexion, on exectuera la commande: openvpn /etc/openvpn/(votreprenom).ovpn
 
 		Installation par interface graphique:
 		La procédure est disponible en image au lieu suivant: https://doc.ubuntu-fr.org/openvpn
