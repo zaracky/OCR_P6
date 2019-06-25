@@ -131,11 +131,13 @@ def installation():
 
 
 
+
 #Fonction permettant l'envoi des mail
 def envoimail():
-#on stock dans une variable le mdp du compte mail
+#on stock dans une variable le mdp et le compte mail utilisé
+	expediteur = "loic.esparon.ocr@gmail.com"
 	mdp = subprocess.check_output(['cat', '/home/administrateur/mdp.txt'])
-#On demande le mail de l'utilisateur
+#On demande le mail de l'utilisateur à qui est destiner les fichiers
 	print("Quel est le mail utilisateur?")
 #On l'integre ensuite à une variable
 	mail= input(" >>")
@@ -151,12 +153,12 @@ def envoimail():
 		envoimail()
 #Nous avons un mail pour client linux et un autre pour client windows. On demande donc sous quel système est le client
 	print("S'agit-il d'un client 'linux' ou 'windows'?")
-	systemexploit= input(" [linux/windows]>>")
+	systemexploit= input("[linux/windows]>>")
 	if systemexploit=="linux":
 #Si il s'agit d'un client linux on lui envoie la procédure approprié
 		msg = MIMEMultipart()
 #On definit ici le corps du mail
-		msg['From'] = 'loic.esparon.ocr@gmail.com'
+		msg['From'] = expediteur
 		msg['To'] = mail
 		msg['Subject'] = 'Procédure installation OPENVPN Client Linux' 
 		message = u"""\
@@ -189,8 +191,8 @@ def envoimail():
 		mailserver.starttls()
 		mailserver.ehlo()
 #On indique les identifiants de connexion
-		mailserver.login('loic.esparon.ocr@gmail.com', mdp.decode())
-		mailserver.sendmail('loic.esparon.ocr@gmail.com', mail, msg.as_string())
+		mailserver.login(expediteur, mdp.decode())
+		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
 		print("Envoie du mail terminé! Retour au menu principal")
@@ -199,7 +201,7 @@ def envoimail():
 	elif systemexploit=="windows":
 #Si il s'agit d'un client Windows on lui envoie la procédure approprié
 		msg = MIMEMultipart()
-		msg['From'] = 'loic.esparon.ocr@gmail.com'
+		msg['From'] = expediteur
 		msg['To'] = mail
 		msg['Subject'] = 'Procédure installation OPENVPN Client Windows' 
 		message = u"""\
@@ -236,8 +238,8 @@ def envoimail():
 		mailserver.starttls()
 		mailserver.ehlo()
 #On indique les identifiants de connexion
-		mailserver.login('loic.esparon.ocr@gmail.com', mdp.decode())
-		mailserver.sendmail('loic.esparon.ocr@gmail.com', mail, msg.as_string())
+		mailserver.login(expediteur, mdp.decode())
+		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
 		print("Envoie du mail terminé! Retour au menu principal")
@@ -249,5 +251,4 @@ def envoimail():
 		envoimail()
 	return
 #Fin de la fonction mail
-
 menu()
