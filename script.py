@@ -32,6 +32,7 @@ def menu():
 	elif choice=="3":
 		return
 	else:
+		print("Merci de choisir parmi les choix proposés")
 		menu()
 
 	return
@@ -50,6 +51,7 @@ def client():
 	print("\033[31m/_\ Attention le repertoire doit avoir la syntaxte suivante: build-key présent et ca.crt +ca.key présent dans un repertoire 'keys'\n (cf README) \n\033[0m") 
 	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
 #On procéde la verification de la présence des fichiers necessaires a la création de la clé client 
+	print("Verification de la présence des fichiers en cours.. \n")
 	if os.path.isfile(localisation+'/keys/ca.crt'):
 		print("Le fichier ca.crt est présent")
 	else:
@@ -71,7 +73,7 @@ def client():
 		print("Merci d'indiquer à nouveau le chemin d'accès")
 		input (" ")
 		client()
-	print("Tout les fichiers sont présent. Début de la création des fichiers utilisateurs..")
+	print("Tout les fichiers sont présent. Merci d'entrer les informations utilisateurs suivant:\n")
 	
 #Maintenant cette étape réaliser, nous pouvons personaliser l'accès via les informations ci dessous:
 	print(" \n Entrer le nom du client:")
@@ -96,9 +98,16 @@ def client():
 	choice = input(" >>")
 #Si le choix est yes on commence la création de la clé vpn
 	if choice=="y":
-		print("nom:",nom,ip,port,protocol)
+		print("Début de la procédure..")
 		os.chdir(localisation)
 
+#Création du fichier de configuration
+		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
+		fichier.close()
+#On créer ensuite un repertoire ou l'on deplace tout les fichiers
+		os.mkdir(nom)
+		os.system('mv '+nom+'.conf '+nom)
+		os.system('zip -r '+nom+'.zip '+nom)
 #Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
 		client()
@@ -168,7 +177,7 @@ def envoimail():
 		Installation en ligne de commande:
 		On commence par installer openvpn avec la commande: apt-get install openvpn
 		Il faudra ensuite copier le fichier .ovpn présent en pj à l'emplacement suivant: /etc/openvpn
-		Enfin afin de démarrer la connexion, on exectuera la commande: openvpn /etc/openvpn/(votreprenom).ovpn
+		Enfin afin de démarrer la connexion, on exectuera la commande: openvpn /etc/openvpn/(votreprenom).conf
 
 		Installation par interface graphique:
 		La procédure est disponible en image au lieu suivant: https://doc.ubuntu-fr.org/openvpn
@@ -178,9 +187,9 @@ def envoimail():
 		msg.attach(MIMEText(message))
 # Ces lignes permettent de definir la piece jointe:
 #Son nom dans le mail
-		filename = "test.txt"
+		filename = "Fichier_configuration.zip"
 #Son emplacement
-		attachment = open("/home/administrateur/mdp.txt", "rb")
+		attachment = open(localisation+"/"+nom+".zip", "rb")
 		part = MIMEBase('application', 'octet-stream')
 		part.set_payload(attachment.read())
 		encoders.encode_base64(part)
@@ -217,7 +226,7 @@ def envoimail():
 
 		Cliquer sur le dossier config (vous y trouverez un ficher nommé README).
 
-	Faîtes glissez tous les fichiers de configuration en pj de ce mail dans ce dossier config
+	Faîtes glissez tous les fichiers de configuration en pj de ce mail dans le dossier config
 		La configuration est maintenant terminée. Maintenant afin de se connecter il suffit d'exécuter à nouveau OPENVPN en tant que administrateur et cliquer sur "Connect"
 
 		Cordialement,
@@ -225,9 +234,9 @@ def envoimail():
 		msg.attach(MIMEText(message))
 # Ces lignes permettent de definir la piece jointe:
 #Son nom dans le mail
-		filename = "test.txt"
+		filename = "Fichier_configuration.zip"
 #Son emplacement
-		attachment = open("/home/administrateur/mdp.txt", "rb")
+		attachment = open(localisation+"/"+nom+".zip", "rb")
 		part = MIMEBase('application', 'octet-stream')
 		part.set_payload(attachment.read())
 		encoders.encode_base64(part)
