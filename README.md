@@ -6,7 +6,7 @@
 
 1. PRE-REQUIS
 
-/!\ Ce Script est à exécuter sur un serveur OPENVPN sous GNU LINUX!
+/!\ Ce Script est à exécuter en tant que root sur un serveur OPENVPN sous GNU LINUX!
 
 Pour le bien de son exécution, les fichiers nécessaires à la création des clés client (ca.key ,ca.crt et build.key) doivent être présents dans un dossier sous la forme suivante:
 Le dossier (qui contient build.key) et un sous dossier qui se nomme keys (contenant ca.key et ca.crt du serveur VPN)
@@ -16,6 +16,8 @@ Cette configuration est celle par défaut lors de l'installation de OPENVPN sur 
 Pour plus de sécurité, nous mettrons le mot de passe de la boite mail utilisé pour les envois dans un fichier texte (cf partie 4)
 
 Le chemin sera à indiquer au sein du script sous la variable :"mdp" (cf envoimail())
+
+Pour faciliter la configuration, le fichier vars devra être configuré au préalable avec les informations de l'entreprise
 
 Une connexion internet peut être requise pour l'envoi par mail.
 
