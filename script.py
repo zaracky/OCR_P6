@@ -17,9 +17,9 @@ def menu():
 #On affiche ici les options possible à l'éxecution du programme
 	print("--------------------------------------------------------------------")
 	print("Bienvenue à travers mon script d'automatisation des clients OPENVPN \n ")
-	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN \n\033[0m") 
+	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
 	print("Voici les differentes options:")
-	print(" 1.Créer un fichier de configuration pour un client \n 2 Créer le fichier client sur la machine local \n 3.Quitter")
+	print(" 1.Créer un fichier de configuration pour un client \n 2 Configurer le VPN sur une machine cliente \n 3.Manuel d'instruction \n 4.Quitter")
 	print("-------------------------------------------------------------------")
 	print(" \n Votre choix:")
 	choice = input(" >>")
@@ -30,6 +30,8 @@ def menu():
 	elif choice=="2":
 		installation()
 	elif choice=="3":
+		readme()
+	elif choice=="4":
 		return
 	else:
 		print("Merci de choisir parmi les choix proposés")
@@ -39,30 +41,32 @@ def menu():
 #Fin fonction menu
 
 
-#FOnction permettant la création de la clé client
+#Fonction permettant la création de la clé client
 def client():
 	os.system('clear')
 #la variable localisation sera utilisé également dans la fonction envoimail
 	global localisation
+#De meme pour le nom
+	global nom
 #Des informations sont necessaires afin de personnaliser les clés
 	print("Merci de completer les informations suivantes afin de démarrer le script ")
-#Il nous dans un premier temps l'accès vers le repertoire contenant les scripts et le certificat serveur:
+#Il nous faut dans un premier temps l'accès vers le repertoire contenant les scripts et le certificat serveur:
 	print(" \nOu se trouve le repertoire easy-rsa contenant les script de création?")
 	print("\033[31m/_\ Attention le repertoire doit avoir la syntaxte suivante: build-key présent et ca.crt +ca.key présent dans un repertoire 'keys'\n (cf README) \n\033[0m") 
 	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
-#On procéde la verification de la présence des fichiers necessaires a la création de la clé client 
+#On procéde la verification de la présence des fichiers necessaires pour la création de la clé client 
 	print("Verification de la présence des fichiers en cours.. \n")
 	if os.path.isfile(localisation+'/keys/ca.crt'):
 		print("Le fichier ca.crt est présent")
 	else:
-		print("\033[31m \n /_\ Erreur le fichier ca.crt n'est pas présent à l'emplacement suivant:",localisation,"\n\033[0m")
+		print("\033[31m \n /_\ Erreur le fichier ca.crt n'est pas présent à l'emplacement suivant:",localisation,"/keys/\n\033[0m")
 		print("Merci d'indiquer à nouveau le chemin d'accès")
 		input (" ")
 		client()
 	if os.path.isfile(localisation+'/keys/ca.key'):
 		print("Le fichier ca.key est présent")
 	else:
-		print("\033[31m \n /_\ Erreur le fichier ca.key n'est pas présent à l'emplacement suivant:",localisation,"\n\033[0m")
+		print("\033[31m \n /_\ Erreur le fichier ca.key n'est pas présent à l'emplacement suivant:",localisation,"/keys/\n\033[0m")
 		print("Merci d'indiquer à nouveau le chemin d'accès")
 		input (" ")
 		client()
@@ -73,7 +77,7 @@ def client():
 		print("Merci d'indiquer à nouveau le chemin d'accès")
 		input (" ")
 		client()
-	print("Tout les fichiers sont présent. Merci d'entrer les informations utilisateurs suivant:\n")
+	print("Tout les fichiers sont présent. Merci d'entrer les informations utilisateurs :\n")
 	
 #Maintenant cette étape réaliser, nous pouvons personaliser l'accès via les informations ci dessous:
 	print(" \n Entrer le nom du client:")
@@ -102,6 +106,8 @@ def client():
 		os.chdir(localisation)
 
 #Création du fichier de configuration
+
+		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
 #On créer ensuite un repertoire ou l'on deplace tout les fichiers
@@ -138,7 +144,10 @@ def installation():
 	print ("ok sa marche")
 	return
 
-
+def readme():
+	os.system('ls')
+	print ("ok sa marche")
+	return
 
 
 #Fonction permettant l'envoi des mail
@@ -166,7 +175,7 @@ def envoimail():
 	if systemexploit=="linux":
 #Si il s'agit d'un client linux on lui envoie la procédure approprié
 		msg = MIMEMultipart()
-#On definit ici le corps du mail
+#On definit ici le corps du mail. Ce dernier sera a adapté en fonction du type de destinataire (technique ou non)
 		msg['From'] = expediteur
 		msg['To'] = mail
 		msg['Subject'] = 'Procédure installation OPENVPN Client Linux' 
@@ -212,6 +221,7 @@ def envoimail():
 		msg = MIMEMultipart()
 		msg['From'] = expediteur
 		msg['To'] = mail
+#On definit ici le corps du mail. Ce dernier sera a adapté en fonction du type de destinataire (technique ou non)
 		msg['Subject'] = 'Procédure installation OPENVPN Client Windows' 
 		message = u"""\
 		Bonjour,
@@ -250,7 +260,7 @@ def envoimail():
 		mailserver.login(expediteur, mdp.decode())
 		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
-#On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
+#On informe l'utilisateur que l'envoi est fait et qu'on le renvoie au menu principal
 		print("Envoie du mail terminé! Retour au menu principal")
 		input (" ")
 		menu()
