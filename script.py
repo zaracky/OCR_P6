@@ -15,10 +15,6 @@ from variable import expediteur,mdp,localisation,ip,port,protocol
 
 #Fonction Menu
 def menu():
-#On definit ici les variable globales qui seront utilisé par la suite
-	global localisation
-	global nom
-
 	os.system('clear')
 #On affiche ici les options possible à l'éxecution du programme
 	print("--------------------------------------------------------------------")
@@ -50,6 +46,9 @@ def menu():
 #Fonction permettant la création de la clé client
 def client():
 	os.system('clear')
+#On definit ici les variable globales qui seront utilisé par la suite
+	global localisation
+	global nom
 #Des informations sont necessaires afin de personnaliser les clés
 	print("Merci de completer les informations suivantes afin de démarrer le script ")
 #Il nous faut dans un premier temps l'accès vers le repertoire contenant les scripts et le certificat serveur:
@@ -99,24 +98,33 @@ def client():
 	choice = input(" >>")
 #Si le choix est yes on commence la création de la clé vpn
 	if (choice == "y") or (choice == "yes") or (choice == "o") or (choice == "oui"):
-		print("Début de la procédure..")
+		print("Début de la procédure...")
 		os.chdir(localisation)
 
-#Création du fichier de configuration
-
+#Création de la clé de chiffrement client
+		fichier = open("buildkey.txt", "w")
+		fichier.write("\n\n\n\n\n\n\n\n\n\ny\ny")
+		fichier.close()
+		os.system('bash build-key '+nom+ '< buildkey.txt')
+		os.system('rm -fr buildkey.txt')
+#Création du fichier de configuration client
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
-#On créer ensuite un repertoire ou l'on deplace tout les fichiers
+#On créer ensuite un repertoire ou l'on deplace tout les fichiers créer
 		os.mkdir(nom)
 		os.system('mv '+nom+'.conf '+nom)
+		os.system('cp keys/ca.crt '+nom)
+		os.system('mv keys/'+nom+'.crt '+nom)
+		os.system('mv keys/'+nom+'.key '+nom)
 		os.system('zip -r '+nom+'.zip '+nom)
 #Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
 		client()
 
 #Maintenant que le fichier est créer on propose de l'envoyer par mail à l'utilisateur
-	print("Envoyer le fichier par mail à l'utilisateur?(y/n)")
+	print("\n\n\n Fichiers de configuration créer! \n\n")
+	print("Voulez-vous les envoyer par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
 #Si oui on fait appel à la fonction mail 
 	if (reponse == "y") or (reponse == "yes") or (reponse == "o") or (reponse == "oui"):
@@ -157,11 +165,11 @@ def envoimail():
 #On l'integre ensuite à une variable
 	mail= input(" >>")
 #Demande de confirmation
-	print("Etes vous sur qu'il s'agit de cette adresse:",mail," ? (y/n)")
+	print("\nEtes vous sur qu'il s'agit de cette adresse:",mail," ? (y/n)")
 	choice = input(" >>")
 	if (choice == "y") or (choice == "yes") or (choice == "o") or (choice == "oui"):
 #Si oui, on l'informe de la préparation du mail
-		print("Préparation du mail pour l'envoie..")
+		print("\nPréparation du mail pour l'envoie..")
 	else:
 #Sinon on l'invite a entrer à nouveau les informations
 		print("Renseignez à nouveau les informations du client")
@@ -210,7 +218,7 @@ def envoimail():
 		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
-		print("Envoie du mail terminé! Retour au menu principal")
+		print("\nEnvoie du mail terminé! Retour au menu principal")
 		input (" ")
 		menu()
 	elif (systemexploit=="windows") or (systemexploit=="Windows"):
@@ -258,7 +266,7 @@ def envoimail():
 		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoi est fait et qu'on le renvoie au menu principal
-		print("Envoie du mail terminé! Retour au menu principal")
+		print("\nEnvoie du mail terminé! Retour au menu principal")
 		input (" ")
 		menu()
 	else :
