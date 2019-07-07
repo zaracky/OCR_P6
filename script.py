@@ -4,23 +4,23 @@ import smtplib
 import subprocess 
 from os import chdir, mkdir
 
-#Pour l'envoie des mail avec corps de texte+pj
+#Pour l'envoi des mail avec corps de texte+pj
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-#On importe les variables prédefinis du fichier variable
+#On importe les variables prédefinies du fichier variable
 from variable import expediteur,mdp,localisation,ip,port,protocol
 
 #Fonction Menu
 def menu():
 	os.system('clear')
-#On affiche ici les options possible à l'éxecution du programme
+#On affiche ici les options possible à l'éxécution du programme
 	print("--------------------------------------------------------------------")
 	print("Bienvenue à travers mon script d'automatisation des clients OPENVPN \n ")
 	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
-	print("Voici les differentes options:")
+	print("Voici les différentes options:")
 	print(" 1.Créer un fichier de configuration pour un client \n 2 Configurer le VPN sur une machine cliente \n 3.Manuel d'instruction \n 4.Quitter")
 	print("-------------------------------------------------------------------")
 	print(" \n Votre choix:")
@@ -46,16 +46,16 @@ def menu():
 #Fonction permettant la création de la clé client
 def client():
 	os.system('clear')
-#On definit ici les variable globales qui seront utilisé par la suite
+#On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
 	global nom
-#Des informations sont necessaires afin de personnaliser les clés
-	print("Merci de completer les informations suivantes afin de démarrer le script ")
-#Il nous faut dans un premier temps l'accès vers le repertoire contenant les scripts et le certificat serveur:
-	print(" \nOu se trouve le repertoire easy-rsa contenant les script de création?")
-	print("\033[31m/_\ Attention le repertoire doit avoir la syntaxte suivante: build-key présent dans le repertoire indiquer et ca.crt +ca.key présent dans un sous-repertoire 'keys'\n (cf README) \n\033[0m") 
+#Des informations sont nécessaires afin de personnaliser les clés
+	print("Merci de compléter les informations suivantes afin de démarrer le script ")
+#Il nous faut dans un premier temps l'accès vers le répertoire contenant les scripts et le certificat serveur:
+	print(" \nOu se trouve le repertoire easy-rsa contenant les scripts de création?")
+	print("\033[31m/_\ Attention le répertoire doit avoir la syntaxe suivante: build-key présent dans le répertoire indiquer et ca.crt +ca.key présent dans un sous-répertoire 'keys'\n (cf README) \n\033[0m") 
 	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
-#On procéde la verification de la présence des fichiers necessaires pour la création de la clé client 
+#On procède à la verification de la présence des fichiers necessaires pour la création de la clé client 
 	print("Verification de la présence des fichiers en cours.. \n")
 	if os.path.isfile(localisation+'/keys/ca.crt'):
 		print("Le fichier ca.crt est présent")
@@ -78,9 +78,9 @@ def client():
 		print("Merci d'indiquer à nouveau le chemin d'accès")
 		input (" ")
 		client()
-	print("Tout les fichiers sont présent. Merci d'entrer les informations utilisateurs :\n")
+	print("Tous les fichiers sont présents. Merci d'entrer les informations utilisateurs :\n")
 	
-#Maintenant cette étape réaliser, nous pouvons personaliser l'accès via les informations ci dessous:
+#Maintenant cette étape réaliser, nous pouvons personnaliser l'accès via les informations ci dessous:
 	print(" \n Entrer le nom du client:")
 	nom = input(" Nom:")
 	print(" \n Entrer l'IP du serveur:")
@@ -111,7 +111,7 @@ def client():
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
-#On créer ensuite un repertoire ou l'on deplace tout les fichiers créer
+#On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
 		os.mkdir(nom)
 		os.system('mv '+nom+'.conf '+nom)
 		os.system('cp keys/ca.crt '+nom)
@@ -122,7 +122,7 @@ def client():
 	else:
 		client()
 
-#Maintenant que le fichier est créer on propose de l'envoyer par mail à l'utilisateur
+#Maintenant que le fichier est crée, on propose de l'envoyer par mail à l'utilisateur
 	print("\n\n\n Fichiers de configuration créer! \n\n")
 	print("Voulez-vous les envoyer par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
@@ -178,9 +178,9 @@ def envoimail():
 	print("S'agit-il d'un client 'linux' ou 'windows'?")
 	systemexploit= input("[linux/windows]>>")
 	if (systemexploit=="linux") or (systemexploit=="Linux"):
-#Si il s'agit d'un client linux on lui envoie la procédure approprié
+#Si il s'agit d'un client linux on lui envoie la procédure appropriée
 		msg = MIMEMultipart()
-#On definit ici le corps du mail. Ce dernier sera a adapté en fonction du type de destinataire (technique ou non)
+#On definit ici le corps du mail. Ce dernier sera a adapter en fonction du type de destinataire (technique ou non)
 		msg['From'] = expediteur
 		msg['To'] = mail
 		msg['Subject'] = 'Procédure installation OPENVPN Client Linux' 
@@ -191,7 +191,7 @@ def envoimail():
 		Installation en ligne de commande:
 		On commence par installer openvpn avec la commande: apt-get install openvpn
 		Il faudra ensuite copier le fichier .ovpn présent en pj à l'emplacement suivant: /etc/openvpn
-		Enfin afin de démarrer la connexion, on exectuera la commande: openvpn /etc/openvpn/(votreprenom).conf
+		Enfin afin de démarrer la connexion, on éxecutera la commande: openvpn /etc/openvpn/(votreprenom).conf
 
 		Installation par interface graphique:
 		La procédure est disponible en image au lieu suivant: https://doc.ubuntu-fr.org/openvpn
@@ -222,19 +222,19 @@ def envoimail():
 		input (" ")
 		menu()
 	elif (systemexploit=="windows") or (systemexploit=="Windows"):
-#Si il s'agit d'un client Windows on lui envoie la procédure approprié
+#Si il s'agit d'un client Windows on lui envoie la procédure appropriée
 		msg = MIMEMultipart()
 		msg['From'] = expediteur
 		msg['To'] = mail
-#On definit ici le corps du mail. Ce dernier sera a adapté en fonction du type de destinataire (technique ou non)
+#On definit ici le corps du mail. Ce dernier sera à adapter en fonction du type de destinataire (technique ou non)
 		msg['Subject'] = 'Procédure installation OPENVPN Client Windows' 
 		message = u"""\
 		Bonjour,
 		Vous trouverez ci-joint la procédure d'installation OPENVPN pour un client sous un système d'exploitation Windows:
 		
-		Vous trouverez l'éxecutable openvpn à l'url suivant: https://www.vpnvision.com/installation-vpn/installation-vpn-openvpn-windows-10/
+		Vous trouverez l'éxécutable openvpn à l'url suivant: https://www.vpnvision.com/installation-vpn/installation-vpn-openvpn-windows-10/
 
-		Une fois l'installation terminée on executera les actions suivantes:
+		Une fois l'installation terminée on exécutera les actions suivantes:
 		Cliquer droit sur l’icône OpenVPN GUI puis aller dans Ouvrir l’emplacement du fichier.
 
 		Dans la barre d’adresse : Programmes > OpenVPN > bin cliquer sur OpenVPN
@@ -242,7 +242,7 @@ def envoimail():
 		Cliquer sur le dossier config (vous y trouverez un ficher nommé README).
 
 	Faîtes glissez tous les fichiers de configuration en pj de ce mail dans le dossier config
-		La configuration est maintenant terminée. Maintenant afin de se connecter il suffit d'exécuter à nouveau OPENVPN en tant que administrateur et cliquer sur "Connect"
+		La configuration est maintenant terminée. Maintenant afin de se connecter il suffit d'exécuter à nouveau OPENVPN en tant qu'administrateur et cliquer sur "Connect"
 
 		Cordialement,
 		L'équipe informatique"""
@@ -270,8 +270,8 @@ def envoimail():
 		input (" ")
 		menu()
 	else :
-#Si aucune des réponses n'est entrer on invite à nouveau l'utilisateur a renseigner les informations
-		print("Le champs renseigner n'est pas celui attendu. Merci de réesayer")
+#Si aucune des réponses n'est entrée, on invite à nouveau l'utilisateur à renseigner les informations
+		print("Le champs renseigner n'est pas celui attendu. Merci de réessayer")
 		envoimail()
 	return
 #Fin de la fonction mail
