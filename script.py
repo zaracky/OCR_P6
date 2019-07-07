@@ -10,9 +10,15 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
+#On importe les variables prédefinis du fichier variable
+from variable import expediteur,mdp,localisation,ip,port,protocol
 
 #Fonction Menu
 def menu():
+#On definit ici les variable globales qui seront utilisé par la suite
+	global localisation
+	global nom
+
 	os.system('clear')
 #On affiche ici les options possible à l'éxecution du programme
 	print("--------------------------------------------------------------------")
@@ -44,15 +50,11 @@ def menu():
 #Fonction permettant la création de la clé client
 def client():
 	os.system('clear')
-#la variable localisation sera utilisé également dans la fonction envoimail
-	global localisation
-#De meme pour le nom
-	global nom
 #Des informations sont necessaires afin de personnaliser les clés
 	print("Merci de completer les informations suivantes afin de démarrer le script ")
 #Il nous faut dans un premier temps l'accès vers le repertoire contenant les scripts et le certificat serveur:
 	print(" \nOu se trouve le repertoire easy-rsa contenant les script de création?")
-	print("\033[31m/_\ Attention le repertoire doit avoir la syntaxte suivante: build-key présent et ca.crt +ca.key présent dans un repertoire 'keys'\n (cf README) \n\033[0m") 
+	print("\033[31m/_\ Attention le repertoire doit avoir la syntaxte suivante: build-key présent dans le repertoire indiquer et ca.crt +ca.key présent dans un sous-repertoire 'keys'\n (cf README) \n\033[0m") 
 	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
 #On procéde la verification de la présence des fichiers necessaires pour la création de la clé client 
 	print("Verification de la présence des fichiers en cours.. \n")
@@ -89,11 +91,6 @@ def client():
 	print(" \n Le protocol utilisé est UDP ou TCP:")
 	protocol = input(" Protocol utilisé:")
 
-#Si l'environement est frequement utilisé on peut definir les variable manuellement et décommenter les lignes suivantes:
-	#localisation="/home/administrateur/easy-rsa"
-	#ip="192.168.1.1"
-	#port="1194"
-	#protocol="udp"
 
 #On affiche le résumé des données entrées afin que l'utilisateur valide en toute conscience
 	print("--------------------------------------------------------------")
@@ -101,7 +98,7 @@ def client():
 	print(" \n Etes vous sur?(y/n)")
 	choice = input(" >>")
 #Si le choix est yes on commence la création de la clé vpn
-	if choice=="y":
+	if (choice == "y") or (choice == "yes") or (choice == "o") or (choice == "oui"):
 		print("Début de la procédure..")
 		os.chdir(localisation)
 
@@ -122,7 +119,7 @@ def client():
 	print("Envoyer le fichier par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
 #Si oui on fait appel à la fonction mail 
-	if reponse=="y" :
+	if (reponse == "y") or (reponse == "yes") or (reponse == "o") or (reponse == "oui"):
 		envoimail()
 
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
@@ -130,7 +127,7 @@ def client():
 		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
 	print("\nVoulez-vous configurer d'autre client?(y/n)")
 	choix = input(" >>")
-	if choix=="y" :
+	if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
 		client()
 	else:
 		print("A bientôt")
@@ -162,7 +159,7 @@ def envoimail():
 #Demande de confirmation
 	print("Etes vous sur qu'il s'agit de cette adresse:",mail," ? (y/n)")
 	choice = input(" >>")
-	if choice=="y":
+	if (choice == "y") or (choice == "yes") or (choice == "o") or (choice == "oui"):
 #Si oui, on l'informe de la préparation du mail
 		print("Préparation du mail pour l'envoie..")
 	else:
@@ -172,7 +169,7 @@ def envoimail():
 #Nous avons un mail pour client linux et un autre pour client windows. On demande donc sous quel système est le client
 	print("S'agit-il d'un client 'linux' ou 'windows'?")
 	systemexploit= input("[linux/windows]>>")
-	if systemexploit=="linux":
+	if (systemexploit=="linux") or (systemexploit=="Linux"):
 #Si il s'agit d'un client linux on lui envoie la procédure approprié
 		msg = MIMEMultipart()
 #On definit ici le corps du mail. Ce dernier sera a adapté en fonction du type de destinataire (technique ou non)
@@ -216,7 +213,7 @@ def envoimail():
 		print("Envoie du mail terminé! Retour au menu principal")
 		input (" ")
 		menu()
-	elif systemexploit=="windows":
+	elif (systemexploit=="windows") or (systemexploit=="Windows"):
 #Si il s'agit d'un client Windows on lui envoie la procédure approprié
 		msg = MIMEMultipart()
 		msg['From'] = expediteur
