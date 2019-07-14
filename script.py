@@ -1,11 +1,11 @@
-#On commence par importer les librairies necessaires au fonctionnement
+#On commence par importer les librairies necessaires au commandes systeme
 import sys, os, os.path
 import smtplib
 import subprocess 
 from os import chdir, mkdir
 from getpass import getpass
 
-#Pour l'envoi des mail avec corps de texte+pj
+#Ces librairies permettent l'envoie par mail
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -116,13 +116,8 @@ def client():
 		os.system('mv '+nom+'.conf '+nom)
 		os.system('cp keys/ca.crt '+nom)
 		os.system('mv keys/'+nom+'.crt '+nom)
-		if (os.system('echo $?') !=0):
-			print("/!\ Une erreur est survenue lors de la création du fichier. Merci de verifier que vous êtes bien en root et réesayer")
-			os.system('rmdir -fr'+nom)
-			menu()
-		else:
-			os.system('mv keys/'+nom+'.key '+nom)
-			os.system('zip -r '+nom+'.zip '+nom)
+		os.system('mv keys/'+nom+'.key '+nom)
+		os.system('zip -r '+nom+'.zip '+nom)
 #Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
 		client()
@@ -141,14 +136,20 @@ def client():
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
 	else:
 		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
-	print("\nVoulez-vous configurer d'autre client?(y/n)")
+#On propose à l'utilisateur de configurer d'autres clients
+	print("\nVoulez-vous configurer d'autres clients?(y/n)")
 	choix = input(" >>")
 	if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
+#SI oui on relance la fonction client
 		client()
 	else:
+#Sinon, on quitte le programme
 		print("A bientôt")
 	return
 #Fin de la fonction client
+
+
+
 
 
 
@@ -165,15 +166,18 @@ def client_auto():
 #Si le fichier est présent on importe les variable
 		from variable import expediteur,mdp,localisation,ip,port,protocol
 	else:
+#Sinon on indique un message d'erreur avec la possibilité de basculer sur la version non automatiser
 		print("\033[31m \n /_\ Erreur le fichier variable n'est pas présent!\n\033[0m")
 		print("Voulez-vous continuer?")
-		choix = input(" >>")
+		choix = input(
+" >>")
 		if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
 			client()
 		else:
 			print("Retour au menu principal..")
 			input (" ")
 			menu()
+#On verifie ici la présence des fichiers necessaires à la création des fichiers clients
 	print("Verification de la présence des certificats en cours.. \n")
 	if os.path.isfile(localisation+'/keys/ca.crt'):
 		print("Le fichier ca.crt est présent")
@@ -229,15 +233,24 @@ def client_auto():
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
 	else:
 		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
+#On propose également la possibilité de configurer d'autre client
 	print("\nVoulez-vous configurer d'autre client?(y/n)")
 	choix = input(" >>")
 	if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
 		client()
 	else:
+#Sinon on quitte le programme
 		print("A bientôt")
 		return;
 	return
+#Fin de la fonction client_auto
 
+
+
+
+
+
+#Cette fonction vas contenir le manuel d'instruction
 def readme():
 	print("""  -------------------------------------------------------------------------
 |									  |
@@ -305,12 +318,14 @@ Les fichiers seront envoyés en pièce jointe sous la forme d'une archive .zip
 	input("Retour au menu principal ")
 	menu()
 	return
+#Fin de la fonction README
+
 
 
 
 #Fonction permettant l'envoi des mail
 def envoimail():
-#On demande le mail de l'utilisateur à qui est destiner les fichiers
+#On demande le mail de l'utilisateur à qui sont destinés les fichiers
 	print("\nQuel est le mail de l'utilisateur?")
 #On l'integre ensuite à une variable
 	mail= input(" >>")
