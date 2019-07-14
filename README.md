@@ -17,6 +17,8 @@ Un fichier variable.py est mis à disposition. Ce dernier est à utiliser dans l
 
 Il est important que ce dernier se trouve dans le même répertoire que le script !
 
+Les informations présentes dans le fichier vars doivent être paramétrées au préalable. Afin d'optimiser la création, les informations mentionnées seront validées automatiquement.
+
 Une connexion internet est requise pour l'envoi par mail.
 
 
