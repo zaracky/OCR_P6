@@ -1,6 +1,6 @@
 #On definit ici les variables utilisé pour la fonction mail.
 #Dans un premier temps l'adresse mail expediteur
-expediteur= "loic"
+expediteur= "mail expediteur"
 #Suivi du mot de passe
 mdp ="test"
 

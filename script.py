@@ -3,6 +3,7 @@ import sys, os, os.path
 import smtplib
 import subprocess 
 from os import chdir, mkdir
+from getpass import getpass
 
 #Pour l'envoi des mail avec corps de texte+pj
 from email.mime.multipart import MIMEMultipart
@@ -10,8 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-#On importe les variables prédefinies du fichier variable
-from variable import expediteur,mdp,localisation,ip,port,protocol
+
 
 #Fonction Menu
 def menu():
@@ -21,20 +21,19 @@ def menu():
 	print("Bienvenue à travers mon script d'automatisation des clients OPENVPN \n ")
 	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
 	print("Voici les différentes options:")
-	print(" 1.Créer un fichier de configuration pour un client \n 2 Configurer le VPN sur une machine cliente \n 3.Manuel d'instruction \n 4.Quitter")
+	print(" 1.Créer un fichier de configuration pour un client \n 2 Créer un fichier de configuration à l'aide du fichier variable.py \n 3.Manuel d'instruction \n 4.Quitter")
 	print("-------------------------------------------------------------------")
 	print(" \n Votre choix:")
 	choice = input(" >>")
-
 #On definit une fonction à exécuter en fonction de chaque choix
 	if choice=="1":
 		client()
 	elif choice=="2":
-		installation()
+		client_auto()
 	elif choice=="3":
 		readme()
 	elif choice=="4":
-		return
+		exit();
 	else:
 		print("Merci de choisir parmi les choix proposés")
 		menu()
@@ -43,17 +42,18 @@ def menu():
 #Fin fonction menu
 
 
+
 #Fonction permettant la création de la clé client
 def client():
 	os.system('clear')
 #On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
-	global nom
+	global nom,expediteur,mdp
 #Des informations sont nécessaires afin de personnaliser les clés
 	print("Merci de compléter les informations suivantes afin de démarrer le script ")
 #Il nous faut dans un premier temps l'accès vers le répertoire contenant les scripts et le certificat serveur:
 	print(" \nOu se trouve le repertoire easy-rsa contenant les scripts de création?")
-	print("\033[31m/_\ Attention le répertoire doit avoir la syntaxe suivante: build-key présent dans le répertoire indiquer et ca.crt +ca.key présent dans un sous-répertoire 'keys'\n (cf README) \n\033[0m") 
+	print("\033[31m/_\ Attention le répertoire doit avoir la syntaxe suivante: build-key présent dans le répertoire indiqué et ca.crt +ca.key présent dans un sous-répertoire 'keys'\n (cf README) \n\033[0m") 
 	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
 #On procède à la verification de la présence des fichiers necessaires pour la création de la clé client 
 	print("Verification de la présence des fichiers en cours.. \n")
@@ -93,7 +93,7 @@ def client():
 
 #On affiche le résumé des données entrées afin que l'utilisateur valide en toute conscience
 	print("--------------------------------------------------------------")
-	print("\nLes informations sont les suivantes:\nnom:",nom, "\nIP:",ip,"\nPort:",port,"\nProtocol:",protocol)
+	print("\nLes informations sont les suivantes:\nNom:",nom, "\nIP:",ip,"\nPort:",port,"\nProtocol:",protocol)
 	print(" \n Etes vous sur?(y/n)")
 	choice = input(" >>")
 #Si le choix est yes on commence la création de la clé vpn
@@ -116,12 +116,108 @@ def client():
 		os.system('mv '+nom+'.conf '+nom)
 		os.system('cp keys/ca.crt '+nom)
 		os.system('mv keys/'+nom+'.crt '+nom)
-		os.system('mv keys/'+nom+'.key '+nom)
-		os.system('zip -r '+nom+'.zip '+nom)
+		if (os.system('echo $?') !=0):
+			print("/!\ Une erreur est survenue lors de la création du fichier. Merci de verifier que vous êtes bien en root et réesayer")
+			os.system('rmdir -fr'+nom)
+			menu()
+		else:
+			os.system('mv keys/'+nom+'.key '+nom)
+			os.system('zip -r '+nom+'.zip '+nom)
 #Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
 		client()
 
+#Maintenant que le fichier est crée, on propose de l'envoyer par mail à l'utilisateur
+	print("\n\n\n Fichiers de configuration créer! \n\n")
+	print("Voulez-vous les envoyer par mail à l'utilisateur?(y/n)")
+	reponse = input(" >>")
+#Si oui on fait appel à la fonction mail 
+	if (reponse == "y") or (reponse == "yes") or (reponse == "o") or (reponse == "oui"):
+		print(" \nEntrer les informations de l'adresse mail expediteur:")
+		expediteur = input("Mail expediteur:")
+		mdp = getpass("Mot de passe de la boite mail: ")
+		envoimail()
+
+#Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
+	else:
+		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
+	print("\nVoulez-vous configurer d'autre client?(y/n)")
+	choix = input(" >>")
+	if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
+		client()
+	else:
+		print("A bientôt")
+	return
+#Fin de la fonction client
+
+
+
+#Cette fonction est une optimisation de la premiere dans le cas d'une execution repeté dans le même environnement
+def client_auto():
+	os.system('clear')
+#On définit ici les variables globales qui seront utilisées par la suite
+	global localisation
+	global nom
+#On verifie la précense du fichier variable.py
+	print("Verification de la présence du fichier variable.py en cours.. \n")
+	if os.path.isfile('variable.py'):
+		print("Le fichier variable.py est présent :) Début de la procédure...")
+#Si le fichier est présent on importe les variable
+		from variable import expediteur,mdp,localisation,ip,port,protocol
+	else:
+		print("\033[31m \n /_\ Erreur le fichier variable n'est pas présent!\n\033[0m")
+		print("Voulez-vous continuer?")
+		choix = input(" >>")
+		if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
+			client()
+		else:
+			print("Retour au menu principal..")
+			input (" ")
+			menu()
+	print("Verification de la présence des certificats en cours.. \n")
+	if os.path.isfile(localisation+'/keys/ca.crt'):
+		print("Le fichier ca.crt est présent")
+	else:
+		print("\033[31m \n /_\ Erreur le fichier ca.crt n'est pas présent à l'emplacement suivant:",localisation,"/keys/\n\033[0m")
+		print("Merci d'indiquer à nouveau le chemin d'accès")
+		input (" ")
+		client()
+	if os.path.isfile(localisation+'/keys/ca.key'):
+		print("Le fichier ca.key est présent")
+	else:
+		print("\033[31m \n /_\ Erreur le fichier ca.key n'est pas présent à l'emplacement suivant:",localisation,"/keys/\n\033[0m")
+		print("Merci d'indiquer à nouveau le chemin d'accès")
+		input (" ")
+		client()
+	if os.path.isfile(localisation+'/build-key'):
+		print("Le fichier build-key est présent")
+	else:
+		print("\033[31m \n /_\ Erreur le fichier build-key n'est pas présent à l'emplacement suivant:",localisation,"\n\033[0m")
+		print("Merci d'indiquer à nouveau le chemin d'accès")
+		input (" ")
+		client()
+	print("Tous les fichiers sont présents. \n Merci de completer le nom du client afin de démarrer la fonction:\n")
+#Dans cette fonction nous ne demanderons pas d'entrer toutes les informations utilisateurs car ces derniers seront importés du fichier variable.pŷ
+	nom = input(" Nom:")
+	print("\nCréation des fichiers en cours...\n")
+#Création de la clé de chiffrement client
+	os.chdir(localisation)
+	fichier = open("buildkey.txt", "w")
+	fichier.write("\n\n\n\n\n\n\n\n\n\ny\ny")
+	fichier.close()
+	os.system('bash build-key '+nom+ '< buildkey.txt')
+	os.system('rm -fr buildkey.txt')
+#Création du fichier de configuration client
+	fichier = open(localisation+"/"+nom+".conf", "w")
+	fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
+	fichier.close()
+#On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
+	os.mkdir(nom)
+	os.system('mv '+nom+'.conf '+nom)
+	os.system('cp keys/ca.crt '+nom)
+	os.system('mv keys/'+nom+'.crt '+nom)
+	os.system('mv keys/'+nom+'.key '+nom)
+	os.system('zip -r '+nom+'.zip '+nom)
 #Maintenant que le fichier est crée, on propose de l'envoyer par mail à l'utilisateur
 	print("\n\n\n Fichiers de configuration créer! \n\n")
 	print("Voulez-vous les envoyer par mail à l'utilisateur?(y/n)")
@@ -139,14 +235,7 @@ def client():
 		client()
 	else:
 		print("A bientôt")
-		return
-	return
-#Fin de la fonction client
-
-
-def installation():
-	os.system('ls')
-	print ("ok sa marche")
+		return;
 	return
 
 def readme():
@@ -155,13 +244,12 @@ def readme():
 	return
 
 
+
+
 #Fonction permettant l'envoi des mail
 def envoimail():
-#on stock dans une variable le mdp et le compte mail utilisé
-	expediteur = "loic.esparon.ocr@gmail.com"
-	mdp = subprocess.check_output(['cat', '/home/administrateur/mdp.txt'])
 #On demande le mail de l'utilisateur à qui est destiner les fichiers
-	print("Quel est le mail utilisateur?")
+	print("\nQuel est le mail de l'utilisateur?")
 #On l'integre ensuite à une variable
 	mail= input(" >>")
 #Demande de confirmation
@@ -214,7 +302,7 @@ def envoimail():
 		mailserver.starttls()
 		mailserver.ehlo()
 #On indique les identifiants de connexion
-		mailserver.login(expediteur, mdp.decode())
+		mailserver.login(expediteur, mdp)
 		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoie est fait et qu'on le renvoie au menu principal
@@ -262,7 +350,7 @@ def envoimail():
 		mailserver.starttls()
 		mailserver.ehlo()
 #On indique les identifiants de connexion
-		mailserver.login(expediteur, mdp.decode())
+		mailserver.login(expediteur, mdp)
 		mailserver.sendmail(expediteur, mail, msg.as_string())
 		mailserver.quit()
 #On informe l'utilisateur que l'envoi est fait et qu'on le renvoie au menu principal
