@@ -307,6 +307,9 @@ Rien n'empêche néanmoins à l'utilisateur du script d'opter pour des sécurit�
 
 4. MAIL
 
+La fonction mail est configurée pour accueillir une adresse gmail. Rien n'empêche par la suite d'opter pour une autre adresse à condition de modifier le serveur et port smpt de l'hébergeur mail.
+Des commentaires contenant un "§§§§§§" précèdent les lignes concernées.
+
 L'adresse mail expéditrice est à entrer lors de l'application de la fonction ou importer via le fichier variable.py
 
 Idem pour le mot de passe.
@@ -374,6 +377,7 @@ def envoimail():
 		encoders.encode_base64(part)
 		part.add_header('Content-Disposition', "attachment", filename=filename)
 		msg.attach(part)
+#§§§§§§§§§§§§§§§ Serveur mail à modifier si l'on ne souhaite pas utiliser gmail
 		mailserver = smtplib.SMTP('smtp.gmail.com', 587)
 		mailserver.ehlo()
 		mailserver.starttls()
@@ -422,6 +426,7 @@ def envoimail():
 		encoders.encode_base64(part)
 		part.add_header('Content-Disposition', "attachment", filename=filename)
 		msg.attach(part)
+#§§§§§§§§§§§§§§§ Serveur mail à modifier si l'on ne souhaite pas utiliser gmail
 		mailserver = smtplib.SMTP('smtp.gmail.com', 587)
 		mailserver.ehlo()
 		mailserver.starttls()
