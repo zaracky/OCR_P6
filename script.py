@@ -47,15 +47,19 @@ def menu():
 def client():
 	os.system('clear')
 	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
+
 #On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
 	global nom,expediteur,mdp
+
 #Des informations sont nécessaires afin de personnaliser les clés
 	print("Merci de compléter les informations suivantes afin de démarrer le script ")
+
 #Il nous faut dans un premier temps l'accès vers le répertoire contenant les scripts et le certificat serveur:
 	print(" \nOu se trouve le repertoire easy-rsa contenant les scripts de création?")
 	print("\033[31m/_\ Attention le répertoire doit avoir la syntaxe suivante: build-key présent dans le répertoire indiqué et ca.crt +ca.key présent dans un sous-répertoire 'keys'\n (cf README) \n\033[0m") 
 	localisation= input("[exemple: /etc/openvpn/easy-rsa ] >>")
+
 #On procède à la verification de la présence des fichiers necessaires pour la création de la clé client 
 	print("Verification de la présence des fichiers en cours.. \n")
 	if os.path.isfile(localisation+'/keys/ca.crt'):
@@ -97,6 +101,7 @@ def client():
 	print("\nLes informations sont les suivantes:\nNom:",nom, "\nIP:",ip,"\nPort:",port,"\nProtocol:",protocol)
 	print(" \n Etes vous sur?(y/n)")
 	choice = input(" >>")
+
 #Si le choix est yes on commence la création de la clé vpn
 	if (choice == "y") or (choice == "yes") or (choice == "o") or (choice == "oui"):
 		print("Début de la procédure...")
@@ -113,6 +118,7 @@ def client():
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
+
 #On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
 		os.mkdir(nom)
 		os.system('mv keys/'+nom+'.crt '+nom )
@@ -124,13 +130,14 @@ def client():
 	else:
 		client()
 
-#Maintenant que le fichier est crée, on propose de l'envoyer par mail à l'utilisateur
+#Maintenant que les fichiers sont crées, on propose de l'envoyer par mail à l'utilisateur
 	print("\n\n\n Fichiers de configuration créer! \n\n")
 	print("Voulez-vous les envoyer par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
 #Si oui on fait appel à la fonction mail 
 	if (reponse == "y") or (reponse == "yes") or (reponse == "o") or (reponse == "oui"):
 		print(" \nEntrer les informations de l'adresse mail expediteur:")
+#On demande à l'utilisateur d'entrer les informations du mail expediteur. Ces derniers seront ensuite utilisé dans la fonction mail.
 		expediteur = input("Mail expediteur:")
 		mdp = getpass("Mot de passe de la boite mail: ")
 		envoimail()
@@ -138,10 +145,12 @@ def client():
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
 	else:
 		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
+
 #On propose à l'utilisateur de configurer d'autres clients
 	print("\nVoulez-vous configurer d'autres clients?(y/n)")
 	choix = input(" >>")
 	if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
+
 #SI oui on relance la fonction client
 		client()
 	else:
@@ -155,21 +164,24 @@ def client():
 
 
 
-#Cette fonction est une optimisation de la premiere dans le cas d'une execution repeté dans le même environnement
+#Cette fonction est une optimisation de la premiere dans le cas d'une execution repetée dans le même environnement
 def client_auto():
 	os.system('clear')
 	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
+
 #On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
 	global nom
+
 #On verifie la précense du fichier variable.py
 	print("Verification de la présence du fichier variable.py en cours.. \n")
 	if os.path.isfile('variable.py'):
 		print("Le fichier variable.py est présent :) Début de la procédure...")
 #Si le fichier est présent on importe les variable
 		from variable import expediteur,mdp,localisation,ip,port,protocol
-	else:
+
 #Sinon on indique un message d'erreur avec la possibilité de basculer sur la version non automatiser
+	else:
 		print("\033[31m \n /_\ Erreur le fichier variable n'est pas présent!\n\033[0m")
 		print("Voulez-vous continuer?")
 		choix = input(
@@ -204,9 +216,11 @@ def client_auto():
 		input (" ")
 		client()
 	print("Tous les fichiers sont présents. \n Merci de completer le nom du client afin de démarrer la fonction:\n")
+
 #Dans cette fonction nous ne demanderons pas d'entrer toutes les informations utilisateurs car ces derniers seront importés du fichier variable.pŷ
 	nom = input(" Nom:")
 	print("\nCréation des fichiers en cours...\n")
+
 #Création de la clé de chiffrement client
 	os.chdir(localisation)
 	fichier = open("buildkey.txt", "w")
@@ -214,10 +228,12 @@ def client_auto():
 	fichier.close()
 	os.system('bash build-key '+nom+ '< buildkey.txt')
 	os.system('rm -fr buildkey.txt')
+
 #Création du fichier de configuration client
 	fichier = open(localisation+"/"+nom+".conf", "w")
 	fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 	fichier.close()
+
 #On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
 	os.mkdir(nom)
 	os.system('mv '+nom+'.conf '+nom)
@@ -225,10 +241,12 @@ def client_auto():
 	os.system('mv keys/'+nom+'.crt '+nom)
 	os.system('mv keys/'+nom+'.key '+nom)
 	os.system('zip -r '+nom+'.zip '+nom)
+
 #Maintenant que le fichier est crée, on propose de l'envoyer par mail à l'utilisateur
 	print("\n\n\n Fichiers de configuration créer! \n\n")
 	print("Voulez-vous les envoyer par mail à l'utilisateur?(y/n)")
 	reponse = input(" >>")
+
 #Si oui on fait appel à la fonction mail 
 	if (reponse == "y") or (reponse == "yes") or (reponse == "o") or (reponse == "oui"):
 		envoimail()
@@ -236,6 +254,7 @@ def client_auto():
 #Sinon on indique uniquement le chemin d'accès vers le fichier ovpn
 	else:
 		print("Les fichier sont disponible à l'emplacement suivant:",localisation,"/",nom)
+
 #On propose également la possibilité de configurer d'autre client
 	print("\nVoulez-vous configurer d'autre client?(y/n)")
 	choix = input(" >>")
@@ -344,18 +363,21 @@ def envoimail():
 	print("\nQuel est le mail de l'utilisateur?")
 #On l'integre ensuite à une variable
 	mail= input(" >>")
+
 #Demande de confirmation
 	print("\nEtes vous sur qu'il s'agit de cette adresse:",mail," ? (y/n)")
 	choice = input(" >>")
 	if (choice == "y") or (choice == "yes") or (choice == "o") or (choice == "oui"):
+
 #Si oui, on l'informe de la préparation du mail
 		print("\nPréparation du mail pour l'envoie..")
 	else:
 #Sinon on l'invite a entrer à nouveau les informations
 		print("Renseignez à nouveau les informations du client")
 		envoimail()
-#Nous avons un mail pour client linux et un autre pour client windows. On demande donc sous quel système est le client
+
 	print("S'agit-il d'un client 'linux' ou 'windows'?")
+#Nous avons un mail pour client linux et un autre pour client windows. On demande donc sous quel système est le client
 	systemexploit= input("[linux/windows]>>")
 	if (systemexploit=="linux") or (systemexploit=="Linux"):
 #Si il s'agit d'un client linux on lui envoie la procédure appropriée
@@ -402,6 +424,7 @@ def envoimail():
 		print("\nEnvoie du mail terminé! Retour au menu principal")
 		input (" ")
 		menu()
+
 	elif (systemexploit=="windows") or (systemexploit=="Windows"):
 #Si il s'agit d'un client Windows on lui envoie la procédure appropriée
 		msg = MIMEMultipart()
@@ -457,4 +480,6 @@ def envoimail():
 		envoimail()
 	return
 #Fin de la fonction mail
+
+#Le programme demarre par la fonction menu
 menu()
