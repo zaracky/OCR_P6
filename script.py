@@ -240,7 +240,7 @@ def client_auto():
 	print("\nVoulez-vous configurer d'autre client?(y/n)")
 	choix = input(" >>")
 	if (choix == "y") or (choix == "yes") or (choix == "o") or (choix == "oui"):
-		client()
+		client_auto()
 	else:
 #Sinon on quitte le programme
 		print("A bientôt")

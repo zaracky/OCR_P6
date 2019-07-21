@@ -39,7 +39,7 @@ Une fois le fichier créer, il est possible de les envoyer par mail à un utilis
 
 Ce manuel d'instruction est également disponible au sein du script avec le choix "3" dans le menu.
 
-/!\ Attention à bien respecter les réponses attendues aux afin de ne pas avoir à répondre aux mêmes questions plusieurs fois d'affilées. 
+/!\ Attention à bien respecter les réponses attendues aux afin de ne pas avoir à répondre aux mêmes questions plusieurs fois d'affilée. 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
