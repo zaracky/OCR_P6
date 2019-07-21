@@ -46,6 +46,7 @@ def menu():
 #Fonction permettant la création de la clé client
 def client():
 	os.system('clear')
+	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
 #On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
 	global nom,expediteur,mdp
@@ -107,16 +108,17 @@ def client():
 		fichier.close()
 		os.system('bash build-key '+nom+ '< buildkey.txt')
 		os.system('rm -fr buildkey.txt')
+
 #Création du fichier de configuration client
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
 #On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
 		os.mkdir(nom)
+		os.system('mv keys/'+nom+'.crt '+nom )
+		os.system('mv keys/'+nom+'.key '+nom)
 		os.system('mv '+nom+'.conf '+nom)
 		os.system('cp keys/ca.crt '+nom)
-		os.system('mv keys/'+nom+'.crt '+nom)
-		os.system('mv keys/'+nom+'.key '+nom)
 		os.system('zip -r '+nom+'.zip '+nom)
 #Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
@@ -156,6 +158,7 @@ def client():
 #Cette fonction est une optimisation de la premiere dans le cas d'une execution repeté dans le même environnement
 def client_auto():
 	os.system('clear')
+	print("\033[31m/_\ Attention ce dernier est à exécuter sur le serveur OPENVPN en tant que ROOT\n\033[0m") 
 #On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
 	global nom
@@ -270,6 +273,15 @@ Cette configuration est celle par défaut lors de l'installation de OPENVPN sur 
 Un fichier variable.py est mis à disposition. Ce dernier est à utiliser dans le cadre d'une utilisation au sein d'un même environnement. Il permet de configurer les variables les plus utilisées et les identifiants gmail
 
 Il est important que ce dernier se trouve dans le même répertoire que le script !
+
+Execution:
+
+1- Les informations présentes dans le fichier vars doivent être paramétrées au préalable. Afin d'optimiser la création, les informations mentionnées seront validées automatiquement. 
+
+Il faut impérativement le valider avec la commande "source ./vars" avant de débuter le script!
+
+2- Le script doit être executer en ROOT!
+
 
 Une connexion internet est requise pour l'envoi par mail.
 """)

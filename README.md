@@ -16,8 +16,14 @@ Cette configuration est celle par défaut lors de l'installation de OPENVPN sur 
 Un fichier variable.py est mis à disposition. Ce dernier est à utiliser dans le cadre d'une utilisation au sein d'un même environnement. Il permet de configurer les variables les plus utilisées et les identifiants gmail
 Il est important que ce dernier se trouve dans le même répertoire que le script !
 
-Les informations présentes dans le fichier vars doivent être paramétrées au préalable. Afin d'optimiser la création, les informations mentionnées seront validées automatiquement. 
-Il faut impérativement le valider avec la commande "source ./vars" avant de débuter le script!!
+Execution:
+
+1- Les informations présentes dans le fichier vars doivent être paramétrées au préalable. Afin d'optimiser la création, les informations mentionnées seront validées automatiquement. 
+
+Il faut impérativement le valider avec la commande "source ./vars" avant de débuter le script!
+
+2- Le script doit être executer en ROOT!
+
 
 Une connexion internet est requise pour l'envoi par mail.
 
