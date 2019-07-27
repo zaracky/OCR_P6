@@ -519,5 +519,6 @@ def envoimail():
 	return
 #Fin de la fonction mail
 
-#Le programme demarre par la fonction menu
+
+#Le programme demarre par la fonction menu.
 menu()
