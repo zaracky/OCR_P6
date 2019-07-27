@@ -114,18 +114,38 @@ def client():
 		os.system('bash build-key '+nom+ '< buildkey.txt')
 		os.system('rm -fr buildkey.txt')
 
-#Création du fichier de configuration client
+#On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
+		os.mkdir(nom)
+
+#On profite de cette commande suivante pour vérifier que la création des fichiers s'est bien déroulée :
+#On met la valeur de echo $? dans un fichier afin de vérifier s'il y a eu une erreur
+		os.system('mv keys/'+nom+'.crt '+nom+ ';echo valeur=$?>> erreur.py')
+		sys.path.append(os.path.abspath(localisation))
+		from erreur import valeur
+#Pour rappel si la valeur retournée est différente de 0 il y a eu une erreur
+		if valeur != 0 :
+#On informe donc l'utilisateur de l'erreur et l'indique a verifier la raison la plus fréquente de cette erreur à savoir le fait qu'il ne sois pas en ROOT
+			print("\n\n\n\n\n /!\ Une erreur est survenue lors de la création! (voir ligne ci dessus) \nMerci de verifier que vous êtes bien en ROOT et recommencer.")
+			os.system('rm erreur.py ')
+			input (" ")
+			menu()
+		else:
+#Sinon on affiche un message de la réussite de la commande
+			print("Deplacement de ",nom,".crt effectué\n")
+
+#On n’exécutera pas cette vérification sur le second fichier, car ces derniers sont créés par paires et si le premier est présent le second l'est aussi
+		os.system('mv keys/'+nom+'.key '+nom)
+		os.system('cp keys/ca.crt '+nom)
+
+#Création du fichier de configuration client et déplacement de ce dernier
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
-
-#On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
-		os.mkdir(nom)
-		os.system('mv keys/'+nom+'.crt '+nom )
-		os.system('mv keys/'+nom+'.key '+nom)
-		os.system('mv '+nom+'.conf '+nom)
 		os.system('cp keys/ca.crt '+nom)
+
+#On archive ensuite le repertoire
 		os.system('zip -r '+nom+'.zip '+nom)
+
 #Si le choix est non  l'utilisateur est invité a entrer à nouveau les informations		
 	else:
 		client()
@@ -229,18 +249,39 @@ def client_auto():
 	os.system('bash build-key '+nom+ '< buildkey.txt')
 	os.system('rm -fr buildkey.txt')
 
-#Création du fichier de configuration client
-	fichier = open(localisation+"/"+nom+".conf", "w")
-	fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
-	fichier.close()
 
 #On créer ensuite un repertoire ou l'on deplace tous les fichiers créer précédemment
-	os.mkdir(nom)
-	os.system('mv '+nom+'.conf '+nom)
-	os.system('cp keys/ca.crt '+nom)
-	os.system('mv keys/'+nom+'.crt '+nom)
-	os.system('mv keys/'+nom+'.key '+nom)
-	os.system('zip -r '+nom+'.zip '+nom)
+		os.mkdir(nom)
+
+#On profite de cette commande suivante pour vérifier que la création des fichiers s'est bien déroulée :
+#On met la valeur de echo $? dans un fichier afin de vérifier s'il y a eu une erreur
+		os.system('mv keys/'+nom+'.crt '+nom+ ';echo valeur=$?>> erreur.py')
+		sys.path.append(os.path.abspath(localisation))
+		from erreur import valeur
+#Pour rappel si la valeur retournée est différente de 0 il y a eu une erreur
+		if valeur != 0 :
+#On informe donc l'utilisateur de l'erreur et l'indique a verifier la raison la plus fréquente de cette erreur à savoir le fait qu'il ne sois pas en ROOT
+			print("\n\n\n\n\n /!\ Une erreur est survenue lors de la création! (voir ligne ci dessus) \nMerci de verifier que vous êtes bien en ROOT et recommencer.")
+#On efface le fichier une fois utilisé
+			os.system('rm erreur.py ')
+			input (" ")
+			menu()
+		else:
+#Sinon on affiche un message de la réussite de la commande
+			print("Deplacement de ",nom,".crt effectué\n")
+
+#On n’exécutera pas cette vérification sur le second fichier, car ces derniers sont créés par paires et si le premier est présent le second l'est aussi
+		os.system('mv keys/'+nom+'.key '+nom)
+		os.system('cp keys/ca.crt '+nom)
+
+#Création du fichier de configuration client et déplacement de ce dernier
+		fichier = open(localisation+"/"+nom+".conf", "w")
+		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
+		fichier.close()
+		os.system('cp keys/ca.crt '+nom)
+
+#On archive ensuite le repertoire
+		os.system('zip -r '+nom+'.zip '+nom)
 
 #Maintenant que le fichier est crée, on propose de l'envoyer par mail à l'utilisateur
 	print("\n\n\n Fichiers de configuration créer! \n\n")
@@ -280,50 +321,48 @@ def readme():
 |									  |
  --------------------------------------------------------------------------
 
-1. PRE-REQUIS
+1.SON FONCTIONNEMENT
+Le script a pour fonction de créer automatiquement les fichiers de configurations nécessaires à la connexion des utilisateurs vers un serveur OPENVPN.
 
-/!\ Ce Script est à exécuter en tant que ROOT sur un serveur OPENVPN sous GNU LINUX!
-
-Pour le bien de son exécution, les fichiers nécessaires à la création des clés client (ca.key ,ca.crt et build.key) doivent être présents dans un dossier sous la forme suivante:
-Le dossier (qui contient build.key) et un sous dossier qui se nom keys (contenant ca.key et ca.crt du serveur VPN)
-
-Cette configuration est celle par défaut lors de l'installation de OPENVPN sur un serveur. Il ne devrait donc avoir aucune modification à réaliser.
-
-Un fichier variable.py est mis à disposition. Ce dernier est à utiliser dans le cadre d'une utilisation au sein d'un même environnement. Il permet de configurer les variables les plus utilisées et les identifiants gmail
-
-Il est important que ce dernier se trouve dans le même répertoire que le script !
-
-Execution:
-
-1- Les informations présentes dans le fichier vars doivent être paramétrées au préalable. Afin d'optimiser la création, les informations mentionnées seront validées automatiquement. 
-
-Il faut impérativement le valider avec la commande "source ./vars" avant de débuter le script!
-
-2- Le script doit être executer en ROOT!
-
-
-Une connexion internet est requise pour l'envoi par mail.
-""")
-	input("Appuyez Entrer pour continuer ")
-	print(""" ----------------------------------------------------------------------------
-
-2. SON FONCTIONNEMENT
-
-Le script a pour fonction de créer automatiquement les fichiers de configurations nécessaires à la connexion des utilisateurs. 
 Pour ce faire, des informations seront demandées à l'utilisateur du script telles que : le nom du client, l'adresse IP du serveur, le port utilisé, et le protocole.
 
 Une fois le fichier créer, il est possible de les envoyer par mail à un utilisateur avec en corps du mail une procédure détailler de l'utilisation des fichiers. Le mail est adapté en fonction de s’il s'agit d'un client Linux ou Windows
 
 Ce manuel d'instruction est également disponible au sein du script avec le choix "3" dans le menu.
 
-/!\ Attention à bien respecter les réponses attendues aux afin de ne pas avoir à répondre aux mêmes questions plusieurs fois d'affilées. 
+/!\ Attention à bien respecter les réponses attendues aux afin de ne pas avoir à répondre aux mêmes questions plusieurs fois d'affilée.
+""")
+	input("Appuyez Entrer pour continuer ")
+	print(""" ----------------------------------------------------------------------------
+
+2. PRE-REQUIS
+
+/!\ Ce Script est à exécuter en tant que ROOT sur un serveur OPENVPN sous GNU LINUX!
+
+Pour le bien de son exécution, les fichiers nécessaires à la création des clés client (ca.key ,ca.crt et build.key) doivent être présents dans un dossier sous la forme suivante: Le dossier (qui contient build.key) et un sous-dossier qui se nomme "keys" (contenant ca.key et ca.crt du serveur OPENVPN)
+
+Cette configuration est celle par défaut lors de l'installation de OPENVPN sur un serveur. Il ne devrait donc avoir aucune modification à réaliser.
+
+Un fichier variable.py est mis à disposition. Ce dernier est à utiliser dans le cadre d'une utilisation répétée au sein d'un même environnement. Il permet de configurer les variables les plus utilisées et les identifiants gmail Il est important que ce dernier se trouve dans le même répertoire que le script !
+
+Une connexion internet est requise pour l'envoi par mail.
+
+Execution:
+
+1- Les informations présentes dans le fichier vars doivent être paramétrées au préalable. Afin d'optimiser la création, les informations mentionnées seront validées automatiquement.
+
+Il faut impérativement le valider avec la commande "source ./vars" avant de débuter le script!
+
+2- Le script doit être executer en ROOT!
+
+
 """)
 	input(" ")
 	print(""" ----------------------------------------------------------------------------
 
 3. OPTIMISATION
 
-Une seconde fonction existe et permet d'importer les variables mentionnées précédemment depuis le fichier variable.py. Cela permet un gain de temps dans le cadre d'une exécution répétée au sein du même environnement (choix "2").
+Une seconde fonction existe et permet d'importer les informations necessaires au script depuis le fichier variable.py. Cela permet un gain de temps dans le cadre d'une exécution répétée au sein du même environnement (choix "2").
 
 Ce fichier est disponible à l'url suivante : https://github.com/zaracky/OCR_P6
 
@@ -338,12 +377,11 @@ Rien n'empêche néanmoins à l'utilisateur du script d'opter pour des sécurit�
 
 4. MAIL
 
-La fonction mail est configurée pour accueillir une adresse gmail. Rien n'empêche par la suite d'opter pour une autre adresse à condition de modifier le serveur et port smpt de l'hébergeur mail.
-Des commentaires contenant un "§§§§§§" précèdent les lignes concernées.
+La fonction mail est configurée pour accueillir une adresse gmail. Rien n'empêche par la suite d'opter pour une autre adresse à condition de modifier le serveur et port smpt de l'hébergeur mail. Des commentaires contenant un "§§§§§§" précèdent les lignes concernées.
 
-L'adresse mail expéditrice est à entrer lors de l'application de la fonction ou importer via le fichier variable.py
+L'adresse mail expéditrice est à définir lors de l'application de la fonction ou à importer via le fichier variable.py Idem pour le mot de passe.
 
-Idem pour le mot de passe.
+L'adresse mail du destinataire sera également à saisir au sein de cette fonction.
 
 Un corps de mail avec une procédure générique a été mis en place. Ce dernier sera à adapter en fonction du contexte et des utilisateurs.
 
