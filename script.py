@@ -126,7 +126,9 @@ def client():
 		if valeur != 0 :
 #On informe donc l'utilisateur de l'erreur et l'indique a verifier la raison la plus fréquente de cette erreur à savoir le fait qu'il ne sois pas en ROOT
 			print("\n\n\n\n\n /!\ Une erreur est survenue lors de la création! (voir ligne ci dessus) \nMerci de verifier que vous êtes bien en ROOT et recommencer.")
+			#On efface le fichier et le repertoire créer
 			os.system('rm erreur.py ')
+			os.system('rm -fr '+nom)
 			input (" ")
 			menu()
 		else:
@@ -262,8 +264,9 @@ def client_auto():
 		if valeur != 0 :
 #On informe donc l'utilisateur de l'erreur et l'indique a verifier la raison la plus fréquente de cette erreur à savoir le fait qu'il ne sois pas en ROOT
 			print("\n\n\n\n\n /!\ Une erreur est survenue lors de la création! (voir ligne ci dessus) \nMerci de verifier que vous êtes bien en ROOT et recommencer.")
-#On efface le fichier une fois utilisé
+#On efface le fichier et le repertoire créer
 			os.system('rm erreur.py ')
+			os.system('rm -fr '+nom)
 			input (" ")
 			menu()
 		else:
