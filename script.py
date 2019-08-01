@@ -193,7 +193,7 @@ def client_auto():
 
 #On définit ici les variables globales qui seront utilisées par la suite
 	global localisation
-	global nom
+	global nom,expediteur,mdp
 
 #On verifie la précense du fichier variable.py
 	print("Verification de la présence du fichier variable.py en cours.. \n")
