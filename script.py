@@ -143,7 +143,7 @@ def client():
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
-		os.system('cp keys/ca.crt '+nom)
+		os.system('mv '+nom+'.conf '+nom)
 
 #On archive ensuite le repertoire
 		os.system('zip -r '+nom+'.zip '+nom)
@@ -281,7 +281,7 @@ def client_auto():
 		fichier = open(localisation+"/"+nom+".conf", "w")
 		fichier.write("client\ndev tun\nproto "+protocol+"\nremote "+ip+" "+port+"\nresolv-retryinfinite \nnobind \npersist-key \npersist-turn \nca /etc/openvpn/ca.crt\ncert /etc/openvpn/"+nom+".crt \nkey /etc/openvpn/"+nom+".key\ncomp-lzo \nverb 3 \npull")
 		fichier.close()
-		os.system('cp keys/ca.crt '+nom)
+		os.system('mv '+nom+'.conf '+nom)
 
 #On archive ensuite le repertoire
 		os.system('zip -r '+nom+'.zip '+nom)
